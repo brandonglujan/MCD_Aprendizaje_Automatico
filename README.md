@@ -4,4 +4,5 @@ Repositorio para la clase de Aprendizaje Automático de la maestría en ciencia 
 
 - [Tarea 2](Limpieza_Glassdor_Tarea2.py)
 - [Tarea 3](Estadísticas_descriptivas_Tarea3.py)
-- [Tarea 4]
+- [Tarea 4 investigación](Tarea_4.md)
+- [Tarea 4 código](Tarea_4.py)
