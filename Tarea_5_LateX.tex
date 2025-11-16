@@ -1,0 +1,182 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[spanish]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{tabularx}
+\usepackage{booktabs} % Para líneas elegantes
+\usepackage{float}
+\title{Aprendizaje Automático}
+\author{Eric Brandon García Luján}
+\date{}
+\begin{document}
+\maketitle
+
+
+
+\section{Introducción}
+
+Uno de los objetivos en este reporte es identificar algún algoritmo no supervisado de los que no se vieron en clase, y que además, pueda ser usado en nuestro dataset elegido (pybaseball). Se explicara el de qué trata el modelo matemático y por qué convendría usarse en nuestro dataset.\\
+
+Para lo anterior, como punto prinicipal se explica que es el aprendizaje no supervisado.\\
+
+El \textit{aprendizaje no supervisado} sirve para analizar y agrupar conjuntos de datos no etiquetados(información en bruto, no ha tenido ningún tratamiento ni se ha asignado clasificación). Son algoritmos que descubren patrones ocultos o agrupaciones de datos sin necesidad de intervención humada y se vuelven una herramienta poderosa par el análisis exploratorio de datos por su capacidad de descubrir similitudes y diferencias y puede ser usada en industrias como la comercial al analizar estrategias de venta cruzada, en la segmentación de clientes o para el reconocimiento de imágenes.
+
+
+\section{Enfoques comunes}
+Estos modelos se usan normalmente para 3 tareas principalmente; agrupamiento, asociación y reducción de dimensionalidad (variables).
+\subsection{Agrupación en clústeres}
+
+Es una técnica en donde los datos se agrupan sin clasificarse aún, uno de los más conocidos es la agrupación en clústeres de k-Means. 
+K-Means es un método de agrupación exclusiva en donde los datos se asignan en K grupos, donde K representa el número de agrupaciones según la. Distancia desde el centroide
+
+\subsection{Agrupación jerárquica}
+
+También conocida como análisis de agrupamiento jerárquico (HCA), puede categorizarse de dos formas: aglomerados o divisivos. La agrupación aglomerativa se considera como un “enfoque de abajo hacia arriba”. Sus puntos de datos se aíslan inicialmente como agrupaciones separadas y luego se fusionan de foma iterativa según la similitud hasta que se logra crear un grupo. 
+Norlmalmente para medir la similitud se usan cuatro métodos: método de ward, enlace promedio, enlace completo(vecino más alejado) y enlace simple(vecino más próximo).
+La agrupación divisiva se definiría como lo opuesto a ala aglomerativa (“de arriba hacia abajo) aunque esta normalmente no es usada.
+
+\subsection{Agrupación probabilística}
+
+Es una técnica que ayuda a resolver problemas de estimación de densidad o agrupamiento “suave”. Los puntos de datos se agrupan en función de la probabilidad de que pertenezcan a una distribución particular, uno de los modelos más usados es el modelo de mezcla gaussiana (GMM).
+
+\subsection{Reglas de asociación}
+
+Es un método basado en reglas para encontrar relaciones entre variables en un conjunto de datos determinado. Este modelo puede ser usado en una rama comercial ya que le podría interesar el hábito de consumo de las personas, el cual permite a las empresas comprender mejor las relaciones entre los diferentes productos y así desarrollar estrategias como la venta cruzada. También puede ser utilizado en industrias como la música, como en Spotify al analizar las canciones que hay en común.
+
+\subsection{Reducción de dimensionalidad}
+Es una técnica que se utiliza cuando el número de características o dimensiones de un conjunto de datos determinado es demasiado alto reduciendo la cantidad de entradas de datos a un tamaño manejable y preservando la integridad de los datos. Algunos de los métodos usados aquí son análisis de componentes principales, descomposición en valores singulares y codificadores automáticos.
+
+\section{DBSCAN}
+Para nuestro dataset, DBSCAN (Agrupación Espacial Basada en la Densidad de Aplicaciones) es un algoritmo de agrupación que podría ser útil ya que DBSCAN consiste en agrupar puntos de datos similares que estan muy juntos y tiene como objetivo principal simiplificar grandes conjuntos de datos en subgrupos significativos, identificar agrupaciones naturales en los datos y revelar pautas y estructuras ocultas. A diferencia de otros algoritmos como K-Means, DBSCAN no requiere que se especifique el número de conglomerados (K)
+Las ventajas de usar DBSCAN son:
+\dots 
+\begin{itemize}
+\item Flexibilidad en la forma del racimo
+\item Sin número predefinido de agrupaciones
+\item Manejo del ruido
+\item Visión basada en la densidad
+\end{itemize}
+Este algoritmo usa dos parámetros principales:
+\begin{enumerate}
+    \item \(\epsilon\) (épsilon): Es la distancia máxima entre dos puntos para que se consideren vecinos.
+    \item MinPts: Es el número mínimo de puntos necesarios para formar una región densa.
+\end{enumerate}
+
+Al ajustar estos parámetros, se puede controlar el modo en que el algoritmo  define los conglomerados.
+Los pasos que se siguen al ejecutar este algoritmo son los siguientes:
+\begin{enumerate}
+    \item Selección de parámetros  
+    \begin{itemize}
+        \item Elige $\epsilon$ (épsilon): La distancia máxima entre dos puntos para que se consideren vecinos.
+        \item Elige MinPts: El número mínimo de puntos necesarios para formar una región densa.
+    \end{itemize}
+
+    \item Selecciona un punto de partida 
+    \begin{itemize}
+        \item El algoritmo comienza con un punto arbitrario no visitado del conjunto de datos.
+    \end{itemize}
+
+    \item Examina el barrio 
+    \begin{itemize}
+        \item Recupera todos los puntos dentro de la distancia $\epsilon$ del punto inicial.
+        \item Si el número de puntos vecinos es inferior a MinPts, el punto se etiqueta como ruido (por ahora).
+        \item Si hay al menos MinPts puntos dentro de una distancia $\epsilon$, el punto se marca como punto núcleo y se forma un nuevo conglomerado.
+    \end{itemize}
+
+    \item Expandir el clúster 
+    \begin{itemize}
+        \item Todos los vecinos del punto central se añaden al clúster.
+        \item Si es un punto central, sus vecinos se añaden al conglomerado recursivamente.
+        \item Si no es un punto central, se marca como punto fronterizo y la expansión se detiene.
+    \end{itemize}
+
+    \item Repite el proceso  
+    \begin{itemize}
+        \item El algoritmo se desplaza al siguiente punto no visitado del conjunto de datos.
+        \item Los pasos 3–4 se repiten hasta que se hayan visitado todos los puntos.
+    \end{itemize}
+
+    \item Finalizar las agrupaciones  
+    \begin{itemize}
+        \item Una vez procesados todos los puntos, el algoritmo identifica todos los conglomerados.
+        \item Los puntos etiquetados inicialmente como ruido pueden ser ahora puntos fronterizos si están a $\epsilon$ de distancia de un punto central.
+    \end{itemize}
+
+    \item Manipulación del ruido 
+    \begin{itemize}
+        \item Los puntos que no pertenecen a ningún conglomerado permanecen clasificados como ruido.
+    \end{itemize}
+\end{enumerate}
+
+Para nuestro conjunto de datos DBSCAN podría  etiquetar un lanzamiento (pitcheo) dado su agrupamiento de lanzamientos similares sin decirle cuántos tipo de pitcheo hay, por ejemplo: 
+
+\begin{itemize}
+        \item Encontrar un grupo con alta velocidad y poco movimiento $\rightarrow{}$ Fastball
+        \item Un lanzamiento con menor velocidad y más curvatura $\rightarrow{}$ Slider
+\end{itemize}
+
+En nuestro conjunto de datos afortunadamente si contamos con una columna llamada \textit{“pitch type”} pero si no tuvieramos esta, podríamos crearla a través de DBSCAN.\\
+
+En este mismo caso, podríamos usar el índice Silhouette ya que este mide qué tan bien estan separados los grupos encontrados. Sus valores van desde -1 hasta 1 y entre más cercanos a 1 indican una mejor separación de los clústeres y los cercanos a -1 la peor separación. Este es una alternativa a métodos como el del codo. Este índice es el ideal si utilizaramos un método como DBSCAN.
+
+\section{PCA (Principal Component Analysis)}
+Dado que nuestros datos provienen de una base de datos con más de 100 campos, utilizaremos el método PCA (Análisis de Componentes Principales) para reducir el número de variables a una conjunto de datos más pequeño.
+
+\subsection{¿Por qué realizar PCA a nuestros datos?}
+El análisis de componentes principales sirve para reducir las variables en un conjunto grande de datos es útil para reducir las variables que pasarán a llamarse componentes principales.
+
+Para nuestro conjunto de datos al tener más de 100 variables nos será muy útil esto.
+En el cuadro \ref{PCA} (p. \pageref{PCA}) se observa un resúmen del por qué será útil.
+
+\begin{table}[H]
+\centering
+\caption{Utilidad del Análisis de Componentes Principales (PCA) en los datos de \textit{Pybaseball}.}
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Objetivo} & \textbf{¿Qué hace PCA?} & \textbf{¿Por qué sirve?} \\
+\hline
+Simplificar los datos & 
+Reduce muchas variables correlacionadas a unas pocas componentes. &
+Evita duplicar información (por ejemplo, \texttt{release\_speed}, \texttt{effective\_speed} y \texttt{velocity} suelen estar correlacionadas). \\
+\hline
+Identificar patrones globales & 
+Encuentra direcciones de máxima variación. &
+Muestra qué tipo de combinaciones de variables “explican” más el comportamiento de los lanzamientos. \\
+\hline
+Preparar los datos para otros algoritmos & 
+Quita ruido y variables redundantes antes de aplicar clustering (\texttt{DBSCAN}, \texttt{KMeans}, etc.). &
+Mejora el desempeño y evita errores por alta dimensionalidad. \\
+\hline
+\end{tabularx}
+\label{PCA}
+
+\end{table}
+
+
+
+\begin{thebibliography}{9}
+
+\bibitem{datacampDBSCAN}
+DataCamp. \textit{DBSCAN Clustering Algorithm: Explained.}
+Disponible en: \url{https://www.datacamp.com/es/tutorial/dbscan-clustering-algorithm}.
+Consultado el 25 de octubre de 2025.
+
+\bibitem{ibmUnsupervised}
+IBM. \textit{Aprendizaje no supervisado: Qué es y cómo funciona.}
+Disponible en: \url{https://www.ibm.com/mx-es/topics/unsupervised-learning}.
+Consultado el 25 de octubre de 2025.
+
+\end{thebibliography}
+
+
+\end{document}
