@@ -1,0 +1,288 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PREÁMBULO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[10pt, a4paper]{article}
+
+% --- Paquetes Requeridos por el Contenido ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{multicol}      % Para el formato de dos columnas
+\usepackage{amsmath}       % Para ecuaciones como la de Regresión Logística
+\usepackage{amssymb}
+\usepackage{graphicx}      % Para incluir imágenes
+\usepackage[pdftex]{hyperref} % Para enlaces interactivos
+\usepackage{float}         % Para el posicionador [t]
+\usepackage{tabularx}      % Para ajustar el ancho de las tablas
+\usepackage{adjustbox}     % Para forzar el ancho de las tablas
+\usepackage{booktabs}      % Para líneas profesionales en tablas
+\usepackage[font=small]{caption} % Para el estilo de los subtítulos
+\usepackage[
+    backend=biber,
+    style=apa,
+    sorting=nyt
+]{biblatex}
+
+\addbibresource{bibliografia.bib}
+
+
+% --- Configuración de Formato y Geometría ---
+\usepackage[margin=2cm, columnsep=0.7cm]{geometry} % Márgenes de 2cm y separación entre columnas
+\setlength{\parindent}{0pt} % Elimina la sangría
+\setlength{\parskip}{0.5\baselineskip} % Espacio entre párrafos
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INFORMACIÓN DEL DOCUMENTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Algoritmos supervisados de ML aplicados a la SABRmetría del béisbol}
+
+% Se usa el comando \thanks y la estructura de autor para integrar la institución y el contacto.
+\author{García Luján Eric Brandon\thanks{Facultad de Ciencias Físico Matemáticas, UANL, México. Correo: brandonglujan@gmail.com}}
+\date{} % Elimina la fecha de compilación
+
+\begin{document}
+
+\maketitle % Crea el título, autor, institución y contacto (integrados en \author)
+
+% Inicia el entorno de dos columnas para el Resumen y el contenido principal
+\begin{multicols}{2}
+
+\section*{Resumen} % Título no numerado
+Este es un artículo para la materia \textit{Aprendizaje Automatizado}, de la Facultad de Ciencias Físico Matemáticas por parte de la Universidad Autónoma de Nuevo León. El objetivo es investigar sobre algoritmos supervisados que puedan aplicarse a un conjunto de datos de béisbol extraído de la librería \textit{pybaseball} de python y aplicar al menos un algoritmo. Además, se dará un panorama sobre el modelo matemático que emplea y explicare por qué conviene utilizarlo en este tipo de conjunto de datos.
+
+Para este trabajo, el artículo \href{https://www.mdpi.com/2078-2489/16/5/361}{Use of Machine Learning and Deep Learning to Predict the Outcomes of Major League Baseball Matches} servirá como una guía para la redacción de este.
+
+\vspace{0.3cm}
+\noindent\textbf{Palabras Clave}: Machine Learning: supervised learning --- Algoritmos Supervisados: regresión, clasificación --- Deportes: béisbol, Sabermetrics --- Herramientas: PyBaseball,Statcast, Baseball Reference,Baseball Savant, FanGraphs
+
+\vspace{0.5cm} % Espacio de separación
+
+% --- INICIO DEL CONTENIDO DEL ARTÍCULO ---
+
+\section{Introducción}\label{S_intro}
+
+El béisbol es conocido como "El rey de los deportes" y a la vez el deporte de las estadísticas y lleva años siendo caso de estudio para la estadística deportiva.
+En el año 1971 Bill James dio origen a la \textit{"Sabermetría"} que es un anglicismo para SABRmetrics, el cuál viene de las siglas \textit{Society for American Baseball Research (Sociedad Americana de Investigación del Béisbol)}.
+
+Hace algunos años en la sabermetría solo se usaban estadísticas básicas sobre pitcheo y bateo, hoy en día recabar información de un partido de béisbol se ha vuelto más fácil, rápido y sobre todo más preciso gracias al uso de maquinas de reconocimiento de pitcheo como Trackman, FlightScope y Rapsodo.
+
+El artículo que se usa como guía para el presente escrito menciona los algoritmos supervisados, técnicas y metodologías que han sido utilizados en estudios previos similares al nuestro y que pueden ser utilizados en nuestros datos dependiendo el tipo de problema a resolver, algunos de esos algoritmos son:
+\begin{itemize}
+    \item \textbf{Predicción de jugadas o resultados específicos:} SVM, Random Forest, redes neuronales. Se puede usar para predecir si el siguiente lanzamiento será fastball, slider o si un batazo podrá ser hit.
+    \item \textbf{Evaluación del rendimiento de jugadores:} XGBoost y deep learning. Se busca estimar métricas de desempeño, fatiga y/o efectividad ya que busca identificar las variables que más influyen.
+    \item \textbf{Estimación del valor de los jugadores:} Random Forest, redes neuronales o regresiones múltiples. Se puede modelar (proyectar)un valor económico del jugador en función del rendimiento deportivo.
+    \item \textbf{Predicción de lesiones:} SVM, LSTM y regresión logística. Se emplean datos biométricos, cargas de trabajo y trayectorias de lanzamiento para detectar patrones previos de lesiones.
+    \item \textbf{Predicción de resultados de partidos o temporadas:} CGBoost, árboles de decisión y redes neuronales. Se combinan variables de jugadores, equipos, clima y rendimiento histórico para estimar probabilidades de victoria.
+\end{itemize}
+\section{¿El tipo de pitcheo influye para que un jugador decida hacer swing?}
+Este trabajo tiene como objetivo definir si el tipo de pitcheo influye para que un bateador haga swing o no. Se aplicará un algoritmo de regresión logística y uno de árbol de decisión con la finalidad de comparar ambos resultados.
+
+\subsection{Definición de la variable objetivo: Swing}
+Definimos como \textbf{swing} todo registro que en el campo de \textit{description} contenga alguna de las siguientes categorías de eventos:
+
+
+\subsection{Definición de la variable objetivo: Swing}
+Definimos como \textbf{swing} todo registro que en el campo de \textit{description} contenga alguna de las siguientes categorías de eventos:
+
+% Utilizando tabularx para ajuste automático dentro del fbox
+\noindent\fbox{
+    \begin{tabularx}{\linewidth}{lX} % 'l' para el código, 'X' para la descripción que debe ajustarse
+    \texttt{swinging\_strike}, & \textit{\ strike con swing} \\
+    \texttt{foul}, & \textit{\ foul siempre implica swing} \\
+    \texttt{hit\_into\_play}, & \textit{\ pelota puesta en juego} \\
+    \texttt{foul\_tip}, & \textit{\ foul siempre implica swing} \\
+    \texttt{foul\_bunt}, & \textit{\ foul siempre implica swing} \\
+    \texttt{swinging\_strike\_blocked} & \textit{\ strike con swing bloqueado} \\
+    \end{tabularx}}
+    
+Por lo tanto, se ha creado una columna nueva en el conjunto de datos donde:
+\begin{equation}
+Swing =
+\begin{cases}
+1, & \text{si } hay\ swing, \\
+0, & \text{si } no\ hay\ swing.
+\end{cases}
+\end{equation}
+
+\subsection{Explicación de los modelos a aplicar}
+Para comprender mejor los algoritmos aplicados se presenta a continuación una breve descripción matemática de cada uno, al aplicar ambos algoritmos lo que se desea es comparar el resultado final de cada uno.
+\subsubsection{Regresión logística}
+La regresión logística se utiliza para estimar la relación entre una variable dependiente y una o más variables independientes, es decir, una predicción sobre una variable categórica frente a una continua.
+Para su uso, la regresión logística utiliza la siguiente jerarquía de ecuaciones:
+
+\subsection*{Ecuación lineal (Logit)}
+La combinación lineal de las características de entrada $(\mathbf{x})$ se define como el Logit ($y$):
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_n x_n$$
+
+\subsection*{Función sigmoide}
+Esta función transforma el Logit ($y$) en una probabilidad ($P$) acotada entre 0 y 1:
+$$P(Y=1 | \mathbf{x}) = \frac{1}{1 + e^{-y}}$$
+
+\subsection*{3. Ecuación completa de la regresión logística}
+Sustituyendo el Logit ($y$) en la función sigmoide, se obtiene la expresión final:
+$$P(Y=1 | \mathbf{x}) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \beta_n x_n)}}$$
+\subsubsection{Árbol de decisión}
+Es un algoritmo supervisado no paramétrico y tiene como objetivo crear un modelo que prediga el valor de una variable objetivo (en este ejercicio, esa variable es si el bateador hace swing o no) mediante el aprendizaje de reglas de decisión simples inferidas a partir de las características de los datos.
+
+\subsection{Selección de datos}
+Para la selección de datos se cuenta con la librería \textit{pybaseball} de Python. Esta librería se encarga de facilitar la extracción y agregación de datos provenientes de las principales bases de datos de análisis del béisbol: \textit{Baseball Reference}, \textit{Baseball Savant} y \textit{FanGraphs}. A continuación, se presenta una descripción concisa de cada una:
+
+\begin{itemize}
+    \item\textbf{Baseball Reference (B-Ref)} Es la base de datos histórica del béisbol más antigua y extensa. Ofrece datos históricos, estadísticas tradicionales (e.g., AVG, HR, ERA) y métricas de valor históricamente contextualizadas (e.g., bWAR).
+    \item\textbf{Baseball Savant} Es la interfaz web oficial que visualiza y procesa los datos cinéticos y de seguimiento de alta resolución recogidos por el sistema \textit{Statcast} de la MLB.
+    \item\textbf{FanGraphs (FG)} Es un sitio web centrado en el análisis "sabermétrico" avanzado. Ofrece métricas que buscan medir el proceso del juego y el rendimiento subyacente del jugador, aislando factores como el azar o el fildeo (e.g., FIP, wRC+).
+    \item\textbf{Pybaseball} Es una librería de Python diseñada para automatizar y simplificar el proceso de extracción de datos limpios y estructurados de las fuentes mencionadas, facilitando su integración directa en flujos de trabajo de análisis y modelado de datos.
+\end{itemize}
+
+Para el conjunto de datos se ha tomado el 70\% del total de los datos para entrenar el modelo y el 30\% para evaluar qué tan bien se ajusta nuestro modelo a datos nuevos.
+\section{Algoritmo de regresión logística}
+Se toma como variable objetivo \textit {swing} y como única variable predictiva \textit {pitch\_type}. El modelo se entrenó con un límite de 1000 iteraciones asegurando la convergencia del algoritmo, es decir para que se acerque a una solución donde se asegura que el modelo "ha terminado de aprender" y no puede mejorar significativamente más.
+Los resultados obtenidos a través de esta prueba dieron una exactitud del 52.22\%, es decir en el 52\% de los lanzamientos nuestro modelo de regresión logística pudo predecir correctamente si el bateador haría o no swing lo que se puede definir como un modelo conservador y casi azaroso.
+\subsection{Métricas de desempeño para la regresión logística}
+Para evaluar la capacidad del modelo de regresión logística para clasificar correctamente los datos, se emplearon las métricas de \textit{precisión} (precisión), \textit{sensibilidad} (recall) y \textit{F1-score}. Estas métricas permiten analizar el equilibrio entre predicciones correctas y errores para cada clase (swing y no swing) y en la tabla \ref{tab:metricas_explicacion}. se explica cada uno de ellos y qué es lo que miden.
+
+% Tabla de Métricas (Ajustada a una columna con tabularx)
+\begin{table}[H]
+\centering
+\caption{Descripción de las métricas de desempeño del modelo.}
+\label{tab:metricas_explicacion}
+
+\begin{tabularx}{\linewidth}{|l|X|}
+\hline
+\textbf{Métrica} & \textbf{¿Qué mide?} \\ \hline
+
+\textbf{Precisión} &
+Las veces que el modelo predijo \textit{swing}, ¿cuántas predicciones fueron correctas?
+\\ \hline
+
+\textbf{Sensibilidad} &
+De todos los swings reales, ¿cuántos logró detectar el modelo?
+\\ \hline
+
+\textbf{F1-score} &
+Promedio armónico entre precisión y sensibilidad; mide el balance entre ambas.
+\\ \hline
+
+\end{tabularx}
+\end{table}
+
+
+Al analizar el desempeño por clase se observa que el modelo identifica con mayor facilidad los lanzamientos en los que no se realiza swing Los resultados
+obtenidos se presentan en la tabla \ref{tab:metricas_logistica}.
+
+% Tabla de Resultados Logística (Ajustada a una columna con adjustbox)
+\begin{table}[H]
+\centering
+\caption{Métricas de desempeño de la regresión logística}
+\label{tab:metricas_logistica}
+\begin{adjustbox}{width=\linewidth}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Clase} & \textbf{Precisión} & \textbf{Sensibilidad} & \textbf{F1-score} & \textbf{Soporte} \\
+\midrule
+No Swing (0) & 0.52 & 0.87 & 0.66 & 115,023 \\
+Swing (1)    & 0.50 & 0.14 & 0.22 & 105,771 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+La siguiente imagen muestra una matriz de confusión y que puede interpretarse de la siguiente forma:
+\begin{itemize}
+    \item \textbf{Clase Real: No Swing}
+    \begin{itemize}
+        \item \textbf{100,470 aciertos (TN):} fueron \emph{No Swing} y el modelo predijo \emph{No Swing}.
+        \item \textbf{14,553 falsos positivos (FP):} fueron \emph{No Swing} pero el modelo predijo \emph{Swing}.
+        \item Esto indica que el modelo es razonablemente bueno detectando la clase \emph{No Swing}, aunque aún comete un número considerable de predicciones incorrectas hacia la clase \emph{Swing}.
+    \end{itemize}
+
+    \item \textbf{Clase Real: Swing}
+    \begin{itemize}
+        \item \textbf{14,830 verdaderos positivos (TP):} fueron \emph{Swing} y el modelo acertó.
+        \item \textbf{90,941 falsos negativos (FN):} fueron \emph{Swing} pero el modelo predijo \emph{No Swing}.
+        \item Esto muestra que el modelo tiene serias dificultades para identificar swings reales, presentando un número muy elevado de falsos negativos.
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Matriz_reglog.png}
+    \caption{Matriz de confusión obtenida con la regresión logística, donde se observa el desempeño del modelo al distinguir entre swings y no swings.El modelo clasifica correctamente la mayoría de los casos de “No Swing”, pero presenta un alto número de falsos negativos al predecir swings reales, evidenciando un fuerte desbalance en la detección de la clase positiva.}
+    \label{fig:matriz_reglog}
+\end{figure}
+
+
+\section{Algoritmo de árbol de decisión}
+Para la segunda etapa del análisis se implementó el algoritmo de árbol de decisión con el mismo objetivo del algoritmo anterior, es decir poder predecir qué tipo de pitcheo está más asociado a que un bateador realice swing o no.
+Para probar este algoritmo se usó el criterio de impureza de Gini el cual evalúa cuán mezcladas están las clases dentro de cada nodo. Este modelo también se entrenó utilizando el 70\% de los datos y evalúa su desempeño con el 30\% restante,
+\subsection{Métricas de desempeño para el árbol de decisión}
+Al igual que en regresión logística, se realizó la evaluación de desempeño del algoritmo de árbol de decisión utilizando las métricas de \textit{precisión} (precisión), \textit{sensibilidad} (recall) y \textit{F1-score} obteniendo los resultados en la tabla \ref{tab:metricas_arbol}. Como se puede observar, son los mismos resultados que en el algoritmo de regresión logística.
+
+% Tabla de Resultados Árbol (Ajustada a una columna con adjustbox)
+\begin{table}[H]
+\centering
+\caption{Métricas de desempeño del árbol de decisión}
+\label{tab:metricas_arbol}
+\begin{adjustbox}{width=\linewidth} % \columnwidth es equivalente a \linewidth en entorno de una columna o \multicols
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Clase} & \textbf{Precisión} & \textbf{Sensibilidad} & \textbf{F1-score} & \textbf{Soporte} \\
+\midrule
+No Swing (0) & 0.52 & 0.87 & 0.66 & 115{,}023 \\
+Swing (1)    & 0.50 & 0.14 & 0.22 & 105{,}771 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Como refuerzo a la tabla \ref{tab:metricas_arbol}, se muestra la imagen (\ref{fig:matriz_arbol}) de la matriz de confusión sobre las predicciones y sus valores verdaderos. Se puede observar que es muy similar en cifras y proporciones a la regresión logística, como lo muestran las métricas anteriores.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Matriz_arbol.png}
+    \caption{Matriz de confusión obtenida con el árbol de decisión, donde se observa el desempeño del modelo al distinguir entre swings y no swings.El modelo clasifica correctamente la mayoría de los casos de “No Swing”, pero presenta un alto número de falsos negativos al predecir swings reales, evidenciando un fuerte desbalance en la detección de la clase positiva.}
+    \label{fig:matriz_arbol} % Etiqueta corregida
+\end{figure}
+
+ Esta matriz, al igual que la anterior se interpreta de la siguiente forma:
+ \begin{itemize}
+    \item \textbf{Clase Real: No Swing}
+    \begin{itemize}
+        \item \textbf{100,509 aciertos (TN):} fueron \emph{No Swing} y el modelo predijo \emph{No Swing}.
+        \item \textbf{14,514 falsos positivos (FP):} fueron \emph{No Swing} pero el modelo predijo \emph{Swing}.
+        \item Esto indica que el modelo es razonablemente bueno detectando la clase \emph{No Swing}, aunque aún comete un número considerable de predicciones incorrectas hacia la clase \emph{Swing}.
+    \end{itemize}
+
+    \item \textbf{Clase Real: Swing}
+    \begin{itemize}
+        \item \textbf{14,790 verdaderos positivos (TP):} fueron \emph{Swing} y el modelo acertó.
+        \item \textbf{90,981 falsos negativos (FN):} fueron \emph{Swing} pero el modelo predijo \emph{No Swing}.
+        \item Esto muestra que el modelo tiene serias dificultades para identificar swings reales, presentando un número muy elevado de falsos negativos.
+    \end{itemize}
+\end{itemize}
+
+\section{Conclusiones}
+Este estudio solo tomó como variable predictiva única al tipo de pitcheo, sin embargo si se quisiera realizar un estudio más amplio se recomienda agregar más variables de modo que el algoritmo se robustezca, además, como la finalidad de este artículo es comparar ambos modelos para la predicción de un modelo que usa solamente una variable predictiva podemos concluir que este tipo de modelos no son útiles por sus datos similares y se concluye que para que un jugador haga swing o no pueden influir más variables que no se tomaron en cuenta para este estudio como la velocidad, la distancia del pitcher al plato o tal vez la que para muchos pudiera ser obvia la ubicación de la bola al llegar a la zona de strike.
+A partir del análisis del código y los datos utilizados, se identifican las siguientes razones por las cuales la regresión logística y el árbol de decisión arrojaron prácticamente los mismos resultados:
+
+\begin{itemize}
+    \item \textbf{Uso de una sola variable predictora (\texttt{pitch\_type}):}
+    El modelo únicamente emplea el tipo de pitcheo como variable independiente, lo cual limita severamente la información disponible para distinguir entre las clases \textit{swing} y \textit{no swing}.
+
+    \item \textbf{Codificación \textit{one-hot} que genera variables binarias simples:}
+    La transformación con \texttt{OneHotEncoder} produce columnas binarias independientes por cada tipo de lanzamiento, lo que permite que tanto la Regresión Logística como el Árbol de Decisión aprendan reglas prácticamente idénticas.
+
+    \item \textbf{La probabilidad de hacer swing no depende mayormente del tipo de pitcheo:}
+    En Statcast, variables como la zona del lanzamiento, la velocidad, el conteo y la ubicación del lanzamiento explican mucho mejor el comportamiento del bateador. Al usar únicamente \texttt{pitch\_type}, la señal predictiva es débil y ambos modelos convergen a la misma solución.
+
+    \item \textbf{El Árbol de Decisión no puede crear divisiones profundas:}
+    Aunque el árbol no tiene límite de profundidad, la falta de variables adicionales impide que genere ramas complejas. Esto provoca que la frontera de decisión que aprende sea casi idéntica a la de la Regresión Logística.
+\end{itemize}
+
+En conjunto, estas condiciones explican por qué ambos modelos produjeron resultados equivalentes utilizando la misma información limitada.
+
+\end{multicols} % Fin de las dos columnas
+\section*{Referencias} % Título no numerado (Ancho completo)
+\nocite{*} % Esto fuerza la inclusión de todas las entradas.
+\printbibliography[heading=none] % Esto imprime la bibliografía sin un título (usaremos el \section* anterior).
+\small
+\end{document}
